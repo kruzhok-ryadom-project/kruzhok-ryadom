@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кружок рядом</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geologica:wght@300;400;500;600;700&display=swap">
+<style>
+/* Макет: «маршрут» — огромное «0 км» в первом экране, бегущая строка программ,
+   подбор одной полосой, каталог как список-указатель с раскрытием строк, синий блок для учителей. */
+:root{
+  --bg:#ECEEF1;
+  --surface:#FFFFFF;
+  --ink:#0D0E12;
+  --muted:#5B606B;
+  --rule:#C9CDD4;
+  --blue:#3B36E8;       /* ультрамарин — главный акцент */
+  --blue-ink:#FFFFFF;
+  --coral:#FF5A3C;      /* стикеры, «есть отбор» */
+  --sun:#FFD53D;        /* выделения */
+  --sun-ink:#0D0E12;
+  --display:"Dela Gothic One","Geologica",system-ui,sans-serif;
+  --body:"Geologica",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Geologica",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B0C14;--surface:#141626;--ink:#EEF0F6;--muted:#9AA0B4;--rule:#2A2E44;--blue:#7C78FF;--blue-ink:#0B0C14;--coral:#FF7A60;--sun:#FFD53D;--sun-ink:#0D0E12;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B0C14;--surface:#141626;--ink:#EEF0F6;--muted:#9AA0B4;--rule:#2A2E44;--blue:#7C78FF;--blue-ink:#0B0C14;--coral:#FF7A60;--sun:#FFD53D;--sun-ink:#0D0E12;color-scheme:dark}
+
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;font-weight:400}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.mono{font-family:var(--body);font-size:13px;font-weight:500;letter-spacing:0}
+h1,h2,h3{margin:0;font-weight:400;text-wrap:balance}
+.km,.head h2,.teach h2,.quiz h3,.empty h3,.logo,.seg.big,.pfoot .cnt b{font-weight:700;font-synthesis:none}
+
+/* шапка */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:18px;border-bottom:1.5px solid var(--ink);flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-size:18px;letter-spacing:.01em}
+.logo span{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--blue);color:var(--blue-ink);font-size:13px}
+.top nav{display:flex;gap:22px;flex-wrap:wrap}
+.top nav a{text-decoration:none;font-weight:500;font-size:15px}
+.top nav a:hover{color:var(--blue)}
+.status{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.status i{width:8px;height:8px;border-radius:50%;background:#2BB673;display:inline-block}
+
+/* первый экран */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;padding-block:44px 30px;align-items:end}
+.km{font-family:var(--display);font-size:clamp(120px,22vw,280px);line-height:.82;letter-spacing:-.03em;color:var(--blue);position:relative;display:inline-block}
+.km small{font-size:.32em;letter-spacing:0;color:var(--ink);margin-left:.08em}
+.sticker{position:absolute;top:-8px;right:-34px;transform:rotate(9deg);background:var(--sun);color:var(--sun-ink);font-family:var(--body);font-weight:700;font-size:15px;letter-spacing:0;line-height:1.2;padding:8px 14px;border-radius:999px;white-space:nowrap}
+.hero h1{font-family:var(--body);font-weight:600;font-size:clamp(24px,3vw,34px);line-height:1.15;margin-top:22px;max-width:16ch}
+.hero-r{display:flex;flex-direction:column;gap:22px;padding-bottom:12px}
+.hero-r p{margin:0;font-size:18px;color:var(--muted);max-width:44ch;font-weight:300}
+.hero-r p b{color:var(--ink);font-weight:600}
+@media (max-width:820px){.hero{grid-template-columns:1fr;gap:28px;align-items:start}.sticker{right:-10px}}
+.route{display:grid;gap:0;border-top:1.5px solid var(--ink)}
+.stop{display:grid;grid-template-columns:1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule);font-size:15px;align-items:baseline}
+.stop b{font-weight:600;font-variant-numeric:tabular-nums}
+.stop.off{color:var(--muted)}
+.stop.off span{text-decoration:line-through;text-decoration-thickness:1.5px}
+.stop.on{color:var(--blue);font-weight:600}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:600;font-size:16px;border-radius:999px;padding:15px 24px;cursor:pointer;border:1.5px solid var(--ink);text-decoration:none;background:transparent;color:var(--ink);display:inline-flex;align-items:center;gap:10px;transition:transform .15s,background .15s}
+.btn.main{background:var(--ink);color:var(--bg)}
+.btn.main:hover{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.btn:hover{transform:translateY(-2px)}
+.btn .arr{display:inline-block;transition:transform .15s}
+.btn:hover .arr{transform:translateX(3px)}
+
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* подбор */
+section{padding-block:56px}
+.head{display:grid;grid-template-columns:auto 1fr;gap:18px 40px;align-items:end;margin-bottom:26px}
+.head .n{color:var(--muted);font-size:14px;font-weight:500}
+.head h2{font-family:var(--display);font-size:clamp(30px,4.5vw,52px);line-height:1;letter-spacing:-.01em}
+.head p{grid-column:2;margin:0;color:var(--muted);max-width:56ch;font-weight:300;font-size:17px}
+@media (max-width:640px){.head{grid-template-columns:1fr}.head p{grid-column:1}}
+
+.picker{display:grid;grid-template-columns:auto 1fr;border:1.5px solid var(--ink);border-radius:22px;overflow:hidden;background:var(--surface)}
+.prow{display:contents}
+.plabel{padding:18px 22px;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);display:flex;align-items:center;color:var(--muted)}
+.popts{padding:12px 16px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
+.prow:last-of-type .plabel,.prow:last-of-type .popts{border-bottom:0}
+.seg{font:inherit;font-size:15px;font-weight:500;border:1.5px solid var(--rule);background:transparent;color:var(--ink);border-radius:999px;padding:9px 16px;cursor:pointer;transition:border-color .15s,background .15s}
+.seg:hover{border-color:var(--ink)}
+.seg[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.seg.big{font-family:var(--display);font-size:20px;padding:8px 18px}
+.pfoot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 22px;background:var(--ink);color:var(--bg);flex-wrap:wrap}
+.pfoot .cnt{font-size:17px}
+.pfoot .cnt b{font-family:var(--display);font-size:28px;color:var(--sun);margin-right:6px;font-weight:400}
+.pfoot button{font:inherit;background:none;border:0;color:inherit;opacity:.75;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+@media (max-width:640px){.picker{grid-template-columns:1fr}.plabel{border-right:0;border-bottom:0;padding:16px 16px 0}.popts{padding:10px 16px 16px}}
+
+/* каталог-указатель */
+.list{border-top:1.5px solid var(--ink)}
+.item{border-bottom:1px solid var(--rule)}
+.item summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:90px 1fr auto 40px;gap:20px;align-items:center;padding:20px 8px;transition:background .15s,padding .2s}
+.item summary::-webkit-details-marker{display:none}
+.item summary:hover{background:var(--surface);padding-left:16px}
+.cls{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
+.ttl h3{font-size:clamp(18px,2.2vw,24px);font-weight:600;line-height:1.2;letter-spacing:-.01em}
+.ttl div{color:var(--muted);font-size:14px;margin-top:3px}
+.flags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.flag{font-family:var(--body);font-size:13px;font-weight:500;border:1px solid var(--rule);border-radius:999px;padding:4px 9px;white-space:nowrap;color:var(--muted)}
+.flag.sel{border-color:var(--coral);color:var(--coral)}
+.flag.ph{border-color:var(--blue);color:var(--blue)}
+.plus{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:20px;transition:transform .2s,background .15s}
+.item[open] .plus{transform:rotate(45deg);background:var(--sun);border-color:var(--sun);color:var(--sun-ink)}
+.more{display:grid;grid-template-columns:90px 1fr 1fr;gap:20px;padding:0 8px 24px}
+.more p{margin:0;font-size:16px;max-width:52ch}
+.how{background:var(--surface);border-radius:14px;padding:14px 16px;font-size:15px}
+.how .mono{display:block;color:var(--muted);margin-bottom:4px}
+.how a{display:inline-block;margin-top:10px;font-weight:600;color:var(--blue);text-decoration:none}
+.how a:hover{text-decoration:underline}
+@media (max-width:820px){
+  .item summary{grid-template-columns:1fr 40px;gap:8px 14px}
+  .cls{grid-column:1;order:-1}
+  .ttl{grid-column:1}.flags{grid-column:1;justify-content:flex-start}
+  .plus{grid-column:2;grid-row:1/4}
+  .more{grid-template-columns:1fr;padding-top:4px}
+  .more .sp{display:none}
+}
+.empty{padding:40px 8px;display:grid;grid-template-columns:90px 1fr;gap:20px;border-bottom:1px solid var(--rule)}
+.empty h3{font-family:var(--display);font-size:26px;margin-bottom:8px}
+.empty p{margin:0;color:var(--muted);max-width:58ch}
+@media (max-width:640px){.empty{grid-template-columns:1fr}}
+
+/* родителям */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+@media (max-width:820px){.cols{grid-template-columns:1fr}}
+.fmt{display:grid;gap:0;border-top:1.5px solid var(--ink)}
+.fmt div{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--rule)}
+.fmt b{font-weight:600}
+.fmt span{color:var(--muted)}
+@media (max-width:480px){.fmt div{grid-template-columns:1fr;gap:4px}}
+.faq{border-top:1.5px solid var(--ink)}
+.faq details{border-bottom:1px solid var(--rule);padding-block:16px}
+.faq summary{list-style:none;cursor:pointer;font-weight:600;font-size:17px;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-size:20px;color:var(--blue)}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:10px 0 0;color:var(--muted)}
+
+/* учителям */
+.teach{background:var(--blue);color:var(--blue-ink);border-radius:28px;padding:clamp(28px,5vw,56px);display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:start}
+.teach h2{font-family:var(--display);font-size:clamp(28px,4vw,46px);line-height:1.05}
+.teach ol{margin:0;padding:0;list-style:none;display:grid;gap:0;counter-reset:s}
+.teach li{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:12px;padding:16px 0;border-top:1px solid color-mix(in srgb,var(--blue-ink) 30%,transparent);font-size:16px}
+.teach li::before{content:counter(s);font-family:var(--display);font-weight:700;font-synthesis:none;font-size:22px;line-height:1;opacity:.85}
+@media (max-width:820px){.teach{grid-template-columns:1fr}}
+
+footer{padding-block:34px 44px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--muted);font-size:14px;border-top:1.5px solid var(--ink);margin-top:20px}
+footer p{margin:0;max-width:62ch}
+
+/* тест */
+.qbg{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 55%,transparent);display:grid;place-items:center;padding:20px;z-index:30;backdrop-filter:blur(4px)}
+.quiz{background:var(--surface);border-radius:26px;max-width:540px;width:100%;padding:28px;display:grid;gap:18px}
+.qtop{display:flex;justify-content:space-between;align-items:center;color:var(--muted)}
+.qtop button{font:inherit;background:none;border:0;color:inherit;cursor:pointer;font-size:22px;line-height:1}
+.qbar{display:flex;gap:6px}.qbar span{flex:1;height:4px;border-radius:2px;background:var(--rule)}.qbar span.on{background:var(--blue)}
+.quiz h3{font-family:var(--display);font-size:28px;line-height:1.1}
+.qopts{display:grid;gap:8px}
+.qopt{font:inherit;font-size:17px;font-weight:500;text-align:left;background:var(--bg);color:var(--ink);border:1.5px solid transparent;border-radius:16px;padding:16px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.qopt::after{content:"→";color:var(--muted);transition:transform .15s}
+.qopt:hover{border-color:var(--blue)}
+.qopt:hover::after{transform:translateX(3px);color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="#start"><span>0</span>Кружок рядом</a>
+    <nav aria-label="Разделы">
+      <a href="#pick">Подбор</a><a href="#catalog">Каталог</a><a href="#parents">Родителям</a><a href="#teachers">Учителям</a>
+    </nav>
+    <span class="status mono"><i></i>11 программ · проверено 11.2026</span>
+  </header>
+
+  <section class="hero" id="start" style="padding-block:44px 24px">
+    <div>
+      <div class="km">0<small>км</small><span class="sticker">Бесплатно</span></div>
+      <h1>до кружка, если в доме есть интернет</h1>
+    </div>
+    <div class="hero-r">
+      <div class="route" aria-label="Сравнение расстояний">
+        <div class="stop off"><span>Дом культуры в соседнем селе</span><b>17 км</b></div>
+        <div class="stop off"><span>Дом творчества в райцентре</span><b>42 км</b></div>
+        <div class="stop on"><span>Онлайн-кружок из каталога</span><b>0 км</b></div>
+      </div>
+      <p>Собрали <b>бесплатные онлайн-кружки</b> для школьников из сёл и малых городов. Подскажем, что подойдёт ребёнку, хватит ли телефона и как записаться.</p>
+      <div class="btns">
+        <button class="btn main" id="openQuiz" type="button">Подобрать за минуту <span class="arr">→</span></button>
+        <a class="btn" href="#catalog">Весь каталог</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="pick">
+    <div class="head"><span class="n mono">01 / Подбор</span><h2>Что подойдёт ребёнку</h2><p>Отметьте условия, и каталог ниже сразу перестроится.</p></div>
+    <div class="picker">
+      <div class="prow"><div class="plabel mono">Класс</div><div class="popts" data-group="cls">
+        <button class="seg big" type="button" data-v="1-4" aria-pressed="false">1–4</button>
+        <button class="seg big" type="button" data-v="5-7" aria-pressed="false">5–7</button>
+        <button class="seg big" type="button" data-v="8-11" aria-pressed="false">8–11</button>
+      </div></div>
+      <div class="prow"><div class="plabel mono">Интерес</div><div class="popts" data-group="dir">
+        <button class="seg" type="button" data-v="code" aria-pressed="false">Программирование и ИИ</button>
+        <button class="seg" type="button" data-v="math" aria-pressed="false">Математика</button>
+        <button class="seg" type="button" data-v="science" aria-pressed="false">Физика, химия, биология</button>
+        <button class="seg" type="button" data-v="hum" aria-pressed="false">Языки, медиа, общество</button>
+      </div></div>
+      <div class="prow"><div class="plabel mono">Условия</div><div class="popts" data-group="opt">
+        <button class="seg" type="button" data-v="phone" aria-pressed="false">Хватит телефона</button>
+        <button class="seg" type="button" data-v="noselect" aria-pressed="false">Без отбора</button>
+        <button class="seg" type="button" data-v="anytime" aria-pressed="false">Начать в любой момент</button>
+      </div></div>
+      <div class="pfoot"><span class="cnt" id="count" aria-live="polite" tabindex="-1"></span><button id="reset" type="button">Сбросить</button></div>
+    </div>
+  </section>
+
+  <section id="catalog" style="padding-top:8px">
+    <div class="head"><span class="n mono">02 / Каталог</span><h2>Программы</h2><p>Нажмите на строку, чтобы узнать подробности и как записаться. Каждую программу перепроверяем раз в полгода.</p></div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section id="parents">
+    <div class="head"><span class="n mono">03 / Родителям</span><h2>Как это устроено</h2></div>
+    <div class="cols">
+      <div class="fmt">
+        <div><b>В записи</b><span>Видео и задания, когда удобно. Подходит, если интернет нестабильный.</span></div>
+        <div><b>Живые занятия</b><span>Урок с преподавателем по расписанию. Нужна связь без перебоев в это время.</span></div>
+        <div><b>Заочно</b><span>Задания приходят раз в несколько недель, ребёнок решает и отправляет на проверку.</span></div>
+        <div><b>Бесплатно</b><span>В каталоге только бесплатные программы. Если где-то просят оплату, напишите нам.</span></div>
+      </div>
+      <div class="faq">
+        <details><summary>Нужны ли Госуслуги?</summary><p>Только для некоторых программ, например «Кода будущего». Это указано в строке программы, в блоке «Как записаться».</p></details>
+        <details><summary>Ребёнку 8 лет. Почему так мало?</summary><p>Бесплатных онлайн-кружков для младших школьников пока очень мало: почти всё рассчитано на ребят с 5–7 класса. Мы ищем такие программы и договариваемся с домами творчества о трансляциях занятий.</p></details>
+        <details><summary>Что такое отбор?</summary><p>Задание, тест или олимпиада перед зачислением. Обычно он нужен, чтобы подобрать уровень. Такие программы отмечены оранжевой меткой.</p></details>
+        <details><summary>Дадут ли сертификат?</summary><p>Во многих программах да. А выпускникам Заочной физико-технической школы могут добавить до четырёх баллов при поступлении в МФТИ. Подробности уточняйте на сайте программы.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="teachers" style="padding-top:8px">
+    <div class="teach">
+      <div><span class="mono" style="opacity:.75">04 / Учителям сельских школ</span><h2 style="margin-top:14px">Онлайн-курс можно превратить в кружок при школе</h2></div>
+      <ol>
+        <li>Смотрите курс в записи всей группой на внеурочке или в центре «Точка роста». Учитель становится наставником, а не лектором.</li>
+        <li>Распечатайте листовку с QR-кодом каталога для родительского собрания.</li>
+        <li>Знаете бесплатную программу, которой здесь нет? Пришлите ссылку, и после проверки мы её добавим.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    <p><b style="color:var(--ink)">Кружок рядом</b> — учебный прототип социального проекта. Сведения о программах собраны из открытых источников в ноябре 2026 года. Условия набора меняются, поэтому перед записью сверяйтесь с сайтом программы.</p>
+    <span class="mono">2026</span>
+  </footer>
+</div>
+
+<div class="qbg" id="qbg" hidden>
+  <div class="quiz" role="dialog" aria-modal="true" aria-labelledby="qTitle">
+    <div class="qtop"><span class="mono" id="qStep"></span><button id="qClose" type="button" aria-label="Закрыть">×</button></div>
+    <div class="qbar" id="qBar"></div>
+    <h3 id="qTitle"></h3>
+    <div class="qopts" id="qOpts"></div>
+  </div>
+</div>
+
+<script>
+const DATA=[
+ {t:"Введение в программирование на Python",org:"Сириус.Курсы, образовательный центр «Сириус»",dir:"code",cls:[7,11],phone:false,select:false,anytime:true,live:false,
+  p:"Синтаксис Python с нуля и первые программы. Для учебы хватит знаний математики за 7 класс.",how:"Регистрация на сайте, курс сразу открывается.",url:"https://edu.sirius.online"},
+ {t:"Знакомство с искусственным интеллектом",org:"Сириус.Курсы с партнёрами",dir:"code",cls:[7,11],phone:true,select:false,anytime:true,live:false,
+  p:"Что такое нейросети и где их применяют: видеоуроки и практические задания.",how:"Регистрация на сайте, курс в записи.",url:"https://edu.sirius.online"},
+ {t:"Код будущего",org:"Минцифры России, оператор — Университет 2035",dir:"code",cls:[8,11],phone:false,select:true,anytime:false,live:true,
+  p:"Python, C++, искусственный интеллект. Не меньше 144 часов, с октября по май, есть онлайн-группы.",how:"Заявление на Госуслугах и вступительное испытание. Набор обычно открывается в августе.",url:"https://www.gosuslugi.ru/futurecode"},
+ {t:"Т-Поколение",org:"Т-Образование",dir:"code",cls:[5,11],phone:false,select:true,anytime:false,live:true,
+  p:"Кружки олимпиадной математики, программирования и ИИ с преподавателями-олимпиадниками.",how:"Заявка и вступительный экзамен. Набор в конце лета.",url:"https://education.tbank.ru"},
+ {t:"Математика решает",org:"Т-Образование",dir:"math",cls:[4,6],phone:true,select:false,anytime:true,live:false,
+  p:"Нестандартные задачи на логику: короткие видео и интерактивные задания.",how:"Регистрация на сайте, начать можно в любое время.",url:"https://education.tbank.ru"},
+ {t:"Открытые уроки олимпиадной математики",org:"Курс на платформе Stepik",dir:"math",cls:[5,6],phone:true,select:false,anytime:true,live:false,
+  p:"Записи занятий кружка для начинающих и домашние задания с автопроверкой.",how:"Бесплатная регистрация на Stepik.",url:"https://stepik.org/259180"},
+ {t:"Заочная физико-техническая школа",org:"МФТИ",dir:"science",cls:[8,11],phone:true,select:true,anytime:false,live:false,zao:true,
+  p:"Физика, математика, информатика, химия и биология: теория, видеолекции и задания на платформе школы. Можно заниматься группой при своей школе. Бесплатно для тех, кто прошёл отбор.",how:"Пройти вступительную онлайн-олимпиаду (март–май). Не прошедшим отбор — только платное обучение.",url:"https://zftsh.online"},
+ {t:"Курсы по физике, химии и биологии",org:"Сириус.Курсы",dir:"science",cls:[7,11],phone:false,select:false,anytime:true,live:false,
+  p:"Онлайн-курсы для школьников, которые хотят знать предмет глубже школьной программы. Новые потоки запускаются регулярно.",how:"Выбрать курс на главной странице и записаться на ближайший поток.",url:"https://edu.sirius.online"},
+ {t:"Лингвистика для школьников",org:"Сириус.Курсы",dir:"hum",cls:[7,11],phone:true,select:false,anytime:true,live:false,
+  p:"Как устроены языки мира: задачи в духе олимпиады по лингвистике.",how:"Регистрация на сайте, курс в записи.",url:"https://edu.sirius.online"},
+ {t:"Обществознание и история журналистики",org:"Лекториум",dir:"hum",cls:[8,11],phone:true,select:false,anytime:true,live:false,
+  p:"Бесплатные видеокурсы для школьников, родителей и учителей.",how:"Открыть курс и смотреть, регистрация по желанию.",url:"https://project.lektorium.tv/free"},
+ {t:"Школа юного журналиста",org:"Национальный центр «Россия» и Движение Первых",dir:"hum",cls:[6,11],phone:true,select:true,anytime:false,live:true,
+  p:"Тексты, фото, видео и соцсети. Для ребят из регионов есть онлайн-модуль.",how:"Конкурсный отбор: эссе и видеопрезентация. Возраст 12–17 лет.",url:"https://russia.ru/school_journalist"}
+];
+const CLS={"1-4":[1,4],"5-7":[5,7],"8-11":[8,11]};
+const state={cls:null,dir:null,opt:new Set()};
+const list=document.getElementById("list"),count=document.getElementById("count");
+
+
+function word(n){const a=n%10,b=n%100;if(a===1&&b!==11)return"программа";if(a>=2&&a<=4&&(b<12||b>14))return"программы";return"программ"}
+function match(d){
+  if(state.cls){const[r1,r2]=CLS[state.cls];if(d.cls[1]<r1||d.cls[0]>r2)return false}
+  if(state.dir&&d.dir!==state.dir)return false;
+  if(state.opt.has("phone")&&!d.phone)return false;
+  if(state.opt.has("noselect")&&d.select)return false;
+  if(state.opt.has("anytime")&&!d.anytime)return false;
+  return true;
+}
+function render(){
+  const L=DATA.filter(match);
+  const n=L.length,one=n%10===1&&n%100!==11;
+  count.innerHTML=n?`<b>${n}</b>${word(n)} ${one?"подходит":"подходят"}`:"Подходящих программ нет";
+  if(!L.length){
+    const y=state.cls==="1-4";
+    list.innerHTML=`<div class="empty"><span class="cls">—</span><div><h3>${y?"Для 1–4 классов почти пусто":"Ничего не нашлось"}</h3><p>${y?"Бесплатных онлайн-кружков для младших школьников пока очень мало. Это главный пробел, который мы хотим закрыть вместе с домами творчества и учителями.":state.opt.size?"Попробуйте убрать одно из условий, например «без отбора» или «хватит телефона».":"По этому направлению для выбранных классов программ пока нет. Посмотрите соседние направления или пришлите нам программу, которую знаете."}</p></div></div>`;
+    return;
+  }
+  list.innerHTML=L.map(d=>`<details class="item"><summary>
+      <span class="cls">${d.cls[0]}–${d.cls[1]} кл.</span>
+      <span class="ttl"><h3>${d.t}</h3><div>${d.org}</div></span>
+      <span class="flags">${d.live?'<span class="flag">Живые занятия</span>':d.zao?'<span class="flag">Заочно</span>':'<span class="flag">В записи</span>'}${d.phone?'<span class="flag ph">С телефона</span>':''}${d.select?'<span class="flag sel">Отбор</span>':''}</span>
+      <span class="plus" aria-hidden="true">+</span>
+    </summary>
+    <div class="more"><span class="sp"></span><p>${d.p}${d.phone?"":" Для занятий нужен компьютер."}</p>
+      <div class="how"><span class="mono">Как записаться</span>${d.how}<br><a href="${d.url}" target="_blank" rel="noopener">На сайт программы →</a></div></div>
+  </details>`).join("");
+}
+document.querySelectorAll(".popts").forEach(g=>{
+  const n=g.dataset.group;
+  g.addEventListener("click",e=>{const b=e.target.closest(".seg");if(!b)return;const v=b.dataset.v;
+    if(n==="opt"){state.opt.has(v)?state.opt.delete(v):state.opt.add(v)}else{state[n]=state[n]===v?null:v}
+    sync();render()});
+});
+function sync(){document.querySelectorAll(".popts").forEach(g=>{const n=g.dataset.group;g.querySelectorAll(".seg").forEach(b=>{
+  b.setAttribute("aria-pressed",n==="opt"?state.opt.has(b.dataset.v):state[n]===b.dataset.v)})})}
+document.getElementById("reset").onclick=()=>{state.cls=null;state.dir=null;state.opt.clear();sync();render()};
+
+const Q=[
+ {q:"В каком классе ребёнок?",o:[["1–4 класс","cls","1-4"],["5–7 класс","cls","5-7"],["8–11 класс","cls","8-11"]]},
+ {q:"Что ему ближе?",o:[["Компьютеры, игры, роботы","dir","code"],["Задачки и головоломки","dir","math"],["Опыты, природа, космос","dir","science"],["Писать, читать, снимать видео","dir","hum"],["Пока не знаем","dir",null]]},
+ {q:"На чём будет заниматься?",o:[["Только телефон","opt","phone"],["Есть компьютер или ноутбук","opt",null]]}
+];
+let qi=0,qa={};const qbg=document.getElementById("qbg"),qOpen=document.getElementById("openQuiz");
+function qhide(){qbg.hidden=true;qOpen.focus()}
+function qdraw(){
+  const s=Q[qi];
+  document.getElementById("qBar").innerHTML=Q.map((_,j)=>`<span class="${j<=qi?"on":""}"></span>`).join("");
+  document.getElementById("qStep").textContent=`Вопрос ${qi+1} из ${Q.length}`;
+  document.getElementById("qTitle").textContent=s.q;
+  document.getElementById("qOpts").innerHTML=s.o.map((o,j)=>`<button class="qopt" type="button" data-j="${j}">${o[0]}</button>`).join("");
+  document.querySelectorAll(".qopt").forEach(b=>b.onclick=()=>{
+    const[,k,v]=s.o[+b.dataset.j];
+    qa[k]=v;
+    if(qi<Q.length-1){qi++;qdraw()}else{
+      state.cls=qa.cls;state.dir=qa.dir;state.opt.clear();if(qa.opt)state.opt.add(qa.opt);
+      qbg.hidden=true;sync();render();document.getElementById("pick").scrollIntoView();document.getElementById("count").focus?.()}
+  });
+  document.querySelector(".qopt").focus();
+}
+qOpen.onclick=()=>{qi=0;qa={};qbg.hidden=false;qdraw()};
+document.getElementById("qClose").onclick=qhide;
+qbg.addEventListener("click",e=>{if(e.target===qbg)qhide()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!qbg.hidden)qhide()});
+render();
+</script>
+</body>
+</html>
